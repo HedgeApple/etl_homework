@@ -17,8 +17,10 @@ with open("example.csv", "r") as example_file:
 
 for hw_cell in hw_header:
     for ex_cell in ex_header:
+        # find substring in header from example and match it with header in homework
         if ex_cell in hw_cell:
             header.append(hw_cell)
+        # hard coded specific words to extract from homework
         elif hw_cell == "description" and hw_cell not in header:
             header.append(hw_cell)
         elif hw_cell == "item number" and hw_cell not in header:
@@ -32,12 +34,13 @@ for row in rows:
     temp_row = []
     for el in row:
         for col in header:
+            # make sure the correct columns are chosen in each row and have matching indices with the headers that were chosen using the original header
             if row.index(el) == hw_header.index(col):
                 temp_row.append(el)
     formatted_rows.append(temp_row)
     temp_row = []
 
-formatted = open('formatted.csv', 'w')
+formatted = open("formatted.csv", "w")
 writer = csv.writer(formatted)
 writer.writerow(header)
 for row in formatted_rows:
