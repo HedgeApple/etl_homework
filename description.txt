@@ -1,0 +1,7 @@
+The python script has one function. The function performs as a reformatting tool that takes in all CSV data and changes the data to fit the needs of the people working with the information.
+The function works as follows:
+    1: The Script grabs the CSV file using the pandas library called homework.csv
+    2: It loops through all the columns within the CSV file.
+    3: Within the loop the function performs conditional statements to serach for specific substrings in multiple columns.
+	1: Within the conditional statements logic is applied to reformat the data as needed and saved into a new CSV called file formatted.csv once the script is executed.
+    
