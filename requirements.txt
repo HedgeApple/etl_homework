@@ -1,0 +1,4 @@
+Modules:
+    csv - documentation here https://docs.python.org/3/library/csv.html
+    pycountry - documentation here https://pypi.org/project/pycountry/
+    math - default python package
