@@ -1,6 +1,3 @@
-
-
-
 import pandas as pd  # Include pandas in requirements.txt
 import pycountry
 
@@ -38,7 +35,7 @@ def format_csv():
     # Re-read homework.csv using columns relating to descriptions, for us to create our product descriptions, and our product styles
     descriptions = pd.read_csv("homework.csv", usecols=desc_columns, low_memory=False)
 
-    # Columns we want to 
+    # Columns we want to use from example.csv (could not find a correlation for every column in example.csv to homework.csv, so just reading the ones we are using)
     example_columns = [r'manufacturer_sku', r'ean13', r'weight', r'length', r'width', r'height', r'prop_65', r'cost_price', r'min_price', r'made_to_order',
     r'product__product_class__name', r'product__brand__name', r'product__title', r'product__description', r'product__bullets__0', r'product__bullets__1', r'product__bullets__2',
     r'product__bullets__3', r'product__bullets__4', r'product__bullets__5', r'product__bullets__6', r'product__country_of_origin__alpha_3', r'attrib__arm_height', r'attrib__bulb_included',
@@ -123,7 +120,6 @@ def format_csv():
     # Format floats to contain 2 decimal places
     specs["map ($)"] = specs["map ($)"].apply(lambda x: "{:.2f}".format (x))
 
-
     # PROP_65 COLUMN (read california label column, if a value is present, assume it to be a link to the prop 65 label, mark it True)
     counter = 0
     for i in specs['url california label (pdf)']:
@@ -197,7 +193,6 @@ def format_csv():
 
     # Country of origin column
     counter = 0
-
     for i in specs['country of origin'].apply(str):
         if i == 'nan':
             specs.loc[counter, 'country of origin'] = ''
@@ -212,7 +207,6 @@ def format_csv():
             elif i == 'Vietnam':
                 i = pycountry.countries.get(name = 'Viet Nam')
                 specs.loc[counter, 'country of origin'] = i.alpha_3
-
             else:
                 i = pycountry.countries.get(name = str(i))
                 specs.loc[counter, 'country of origin'] = i.alpha_3
