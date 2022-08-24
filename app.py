@@ -33,7 +33,7 @@ def boxes_search(item, boxes):
         if all(x in key for x in split_list):
             match = item[key]
             if match == '':
-                break
+                continue
             else:
                 return str(math.ceil(float(item[key])))
     return ''
@@ -165,7 +165,7 @@ with open('homework.csv', 'r') as file:
                 try:
                     f_country = pycountry.countries.get(name=long_country).alpha_3
                 except AttributeError:
-                    break
+                    continue
             f_item.append(f_country)
             
             # field: product__parent_sku
