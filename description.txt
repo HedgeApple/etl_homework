@@ -1,0 +1,20 @@
+First I read the example.csv file with csv reader to make a list of the header to go in the final formatted.csv file.
+
+Then I read the homework.csv file using pandas and renamed the columns to match the ones in the example.csv file.
+
+I then created a set of headers that was common to both the example.csv and homework.csv file.
+
+I then removed the columns that were not listed in the example file using keep_col.
+
+Using DictReader I inserted the rows into the new file using the original header.
+
+Then using simple for and if/else loops I made changes:
+to the values of the 'attrib__ul_certified', to show YES or NO instead of UL and null
+
+to the 'product__country_of_origin__alpha_3' to show the first 3 letters in uppercase
+
+to the 'attrib__seat_width' which originally included height in the form of 'width x height', sliced everything after 'x' to show only width. 
+
+Finally I figured out ean and upc were barcodes, I wasn't familiar with them and i converted the upc to ean using simple loops, slicing and indexing
+
+Due to time constraints I might have missed some headers while renaming and matching but I think I achieved the overall intended goal. Some of the code is also unpythonic and maybe a bit verbose but again I could fix that given more time.
