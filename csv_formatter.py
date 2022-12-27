@@ -24,10 +24,10 @@ def convert_country_alpha3(country_name):
 
 
 def check_prop_65(url_jpg, url_pdf):
-    if not url_jpg.empty or not url_pdf.empty:
-        return True
-    else:
+    if pd.isna(url_jpg) and pd.isna(url_pdf):
         return False
+    else:
+        return True
 
 
 def check_attribute(data_cell, attribute):
@@ -134,8 +134,12 @@ with open("homework.csv", encoding="UTF-8") as input_file:
     data["cost_price"] = data["cost_price"].apply(format_currency, currency_sign="$")
     data["min_price"] = data["min_price"].apply(format_currency, currency_sign="$")
     data["attrib__outdoor_safe"] = data["attrib__outdoor_safe"].apply(convert_to_bool)
-    data["prop_65"] = check_prop_65(
-        data["url california label (jpg)"], data["url california label (pdf)"]
+    data["prop_65"] = data.apply(
+        lambda x: check_prop_65(
+            url_jpg=x["url california label (jpg)"],
+            url_pdf=x["url california label (pdf)"],
+        ),
+        axis=1,
     )
     data["product__country_of_origin__alpha_3"] = data[
         "product__country_of_origin__alpha_3"
