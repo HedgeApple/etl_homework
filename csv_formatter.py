@@ -1,14 +1,79 @@
 import pandas as pd
 import pycountry
-import time
 import re
 
-start_time = time.time()
+
+def convert_upc_ean13(upc):
+    try:
+        upc = str(int(upc))
+    except ValueError:
+        return None
+    upc = "0" * (12 - len(upc)) + upc
+    ean13 = "0" + upc[:2] + "-" + upc[2:11] + "-" + upc[11]
+    return ean13
+
+
+def convert_country_alpha3(country_name):
+    spelling_changes = {"Vietnam": "Viet Nam", "Phillipines": "Philippines"}
+    if country_name in spelling_changes:
+        country_name = spelling_changes[country_name]
+    try:
+        return pycountry.countries.get(name=country_name).alpha_3
+    except Exception:
+        return None
+
+
+def check_prop_65(url_jpg, url_pdf):
+    if not url_jpg.empty or not url_pdf.empty:
+        return True
+    else:
+        return False
+
+
+def check_attribute(data_cell, attribute):
+    if str(attribute).lower() in str(data_cell).lower():
+        return True
+    else:
+        return False
+
+
+def parse_dimension(dimensions, height, index):
+    if type(dimensions) == float:
+        return dimensions
+    else:
+        dimensions_array = re.split("x|X|\*", dimensions, maxsplit=2)
+        # After splitting, dimensions array may contain up to 3 values
+        # If there are three, 'height' is filtered out first
+        # Index is then used to determine which remaining value will serve as length or width
+        if len(dimensions_array) == 3:
+            height = float(height)
+            dimensions_array = list(map(lambda x: float(x), dimensions_array))
+            length_width = list(filter(lambda x: x != height, dimensions_array))
+            return float(length_width[index])
+        elif len(dimensions_array) == 2:
+            return float(dimensions_array[index])
+        else:
+            return float(dimensions_array[0])
+
+
+def format_currency(data_cell, currency_sign):
+    try:
+        return float(data_cell)
+    except ValueError:
+        data_cell = data_cell.replace(currency_sign, "")
+        data_cell = data_cell.replace(",", "")
+        return round(float(data_cell), 2)
+
+
+def convert_to_bool(data_cell):
+    data_cell = str(data_cell).lower()
+    return True if data_cell == "yes" else False
+
 
 with open("homework.csv", encoding="UTF-8") as input_file:
     data = pd.read_csv(input_file, sep=",", dtype="object")
 
-    # Rename columns which will appear in formatted.csv more or less as they are
+    # Rename columns which will appear in formatted.csv
     data.rename(
         columns={
             "item number": "manufacturer_sku",
@@ -64,81 +129,20 @@ with open("homework.csv", encoding="UTF-8") as input_file:
         inplace=True,
     )
 
-    def convert_upc_ean13(upc):
-        try:
-            upc = str(int(upc))
-        except ValueError:
-            # print("Invalid UPC: ", upc)
-            return None
-        upc = "0" * (12 - len(upc)) + upc
-        ean13 = "0" + upc[:2] + "-" + upc[2:11] + "-" + upc[11]
-        return ean13
-
-    def convert_country_alpha3(country_name):
-        spelling_changes = {"Vietnam": "Viet Nam", "Phillipines": "Philippines"}
-        if country_name in spelling_changes:
-            country_name = spelling_changes[country_name]
-        try:
-            return pycountry.countries.get(name=country_name).alpha_3
-        except LookupError:
-            return None
-        except AttributeError:
-            # print("Country name not recognized: ", country_name)
-            return None
-
-    def check_prop_65(url_jpg, url_pdf):
-        if not url_jpg.empty or not url_pdf.empty:
-            return True
-        else:
-            return False
-
-    def check_attribute(data_cell, attribute):
-        if str(attribute).lower() in str(data_cell).lower():
-            return True
-        else:
-            return False
-
-    def parse_dimension(dimensions, height, index):
-        if type(dimensions) == float:
-            return dimensions
-        else:
-            dimensions_array = re.split("x|X|\*", dimensions, maxsplit=2)
-            if len(dimensions_array) == 3:
-                height = float(height)
-                dimensions_array = list(map(lambda x: float(x), dimensions_array))
-                length_width = list(filter(lambda x: x != height, dimensions_array))
-                return float(length_width[index])
-            elif len(dimensions_array) == 2:
-                return float(dimensions_array[index])
-            else:
-                return float(dimensions_array[0])
-
-    def format_currency(data_cell, currency_sign):
-        try:
-            return float(data_cell)
-        except ValueError:
-            data_cell = data_cell.replace(currency_sign, "")
-            data_cell = data_cell.replace(",", "")
-            return round(float(data_cell), 2)
-
-    # Do formatting for columns that require it
-
+    # Perform data manipulation on columns that require it
     data["ean13"] = data["upc"].apply(convert_upc_ean13)
     data["cost_price"] = data["cost_price"].apply(format_currency, currency_sign="$")
     data["min_price"] = data["min_price"].apply(format_currency, currency_sign="$")
-
+    data["attrib__outdoor_safe"] = data["attrib__outdoor_safe"].apply(convert_to_bool)
     data["prop_65"] = check_prop_65(
         data["url california label (jpg)"], data["url california label (pdf)"]
     )
-
     data["product__country_of_origin__alpha_3"] = data[
         "product__country_of_origin__alpha_3"
     ].apply(convert_country_alpha3)
-
     data["attrib__distressed_finish"] = data["attrib__finish"].apply(
         check_attribute, attribute="distressed"
     )
-
     data["attrib__seat_depth"] = data.apply(
         lambda x: parse_dimension(
             dimensions=x["furniture seat dimensions (inches)"],
@@ -147,7 +151,6 @@ with open("homework.csv", encoding="UTF-8") as input_file:
         ),
         axis=1,
     )
-
     data["attrib__seat_width"] = data.apply(
         lambda x: parse_dimension(
             dimensions=x["furniture seat dimensions (inches)"],
@@ -156,13 +159,11 @@ with open("homework.csv", encoding="UTF-8") as input_file:
         ),
         axis=1,
     )
-
     data["attrib__ul_certified"] = data["safety rating"].apply(
         check_attribute, attribute="ul"
     )
 
     # Initialize unknown columns to None (unsure of where this information is sourced from)
-
     data["made_to_order"] = None
     data["product__configuration__codes"] = None
     data["product__parent_sku"] = None
@@ -185,6 +186,7 @@ with open("homework.csv", encoding="UTF-8") as input_file:
     data["boxes__3__height"] = None
     data["boxes__3__width"] = None
 
+    # Cast non-object columns to the appropriate data types
     data = data.astype(
         {
             "weight": "float64",
@@ -217,6 +219,7 @@ with open("homework.csv", encoding="UTF-8") as input_file:
         }
     )
 
+    # Define the order the columns should appear in formatted.csv
     data = data[
         [
             "manufacturer_sku",
@@ -298,13 +301,5 @@ with open("homework.csv", encoding="UTF-8") as input_file:
         ]
     ]
 
-    pd.set_option("display.max_rows", None)
-    # print(data.dtypes)
-
     data = data.fillna("")
     data.to_csv("formatted.csv", index=False)
-
-    # print(data)
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print("Elapsed time: ", elapsed_time)
