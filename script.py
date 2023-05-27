@@ -4,7 +4,7 @@ import csv
 import pandas as pd
 
 # A function to convert upc column to ean13 as represented in the example.csv file
-def convert_upc_ean13(upc):
+def getEan13(upc):
     # Adding a '0' at the start following with hyphen at specific intervals
     upc = "0" * (12 - len(upc)) + upc
     ean13 = "0" + upc[:2] + "-" + upc[2:11] + "-" + upc[11]
@@ -28,7 +28,7 @@ with open('example.csv', 'r') as file_example:
     # UPC / Gtin / EAN handled as strings
     hw_dataframe['upc'] = hw_dataframe['upc'].astype('str')
 
-    hw_dataframe["upc"] = hw_dataframe["upc"].apply(convert_upc_ean13)
+    hw_dataframe["upc"] = hw_dataframe["upc"].apply(getEan13)
     # print(hw_dataframe["upc"])
 
     # renaming the columns based on column names from example.csv
