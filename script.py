@@ -7,6 +7,11 @@ class ETLPipeline:
         self.reference_dataframe = reference_dataframe
 
     def get_column_name_mapping(self) -> dict:
+        """This is the column name mapping 
+
+        Returns:
+            dict: column name mapping(main dataframe->reference dataframe)
+        """
         return {
             "item number": "manufacturer_sku",
             "upc": "ean13",
@@ -62,6 +67,11 @@ class ETLPipeline:
         }
 
     def get_country_code(self):
+        """This helper function return country code
+
+        Returns:
+            _type_: country code mapping
+        """
         return {
             "China": "CHN",
             "Indonesia": "IDN",
@@ -72,11 +82,27 @@ class ETLPipeline:
         }
 
     def upc_to_ean13_tranform(self, upc: str) -> str:
+        """This helper function converts UPC value to EAN13
+
+        Args:
+            upc (str): UPC value 
+
+        Returns:
+            str: EAN13 converted value
+        """
         return (
             upc[:2] + "-" + upc[2:11] + "-" + upc[-1] if isinstance(upc, str) else upc
         )
 
     def price_value_transform(self, price_value: str) -> str:
+        """This helper function convert price value to expected price value format
+
+        Args:
+            price_value (str): price value 
+
+        Returns:
+            str: formatted price value
+        """
         return (
             "${:,.2f}".format(
                 round(float(price_value.replace("$", "").replace(",", "")), 2)
@@ -85,6 +111,14 @@ class ETLPipeline:
             else price_value
         )
     def prop65_transform(self,row)->bool:
+        """This function returns whether row indicates prop65 or not
+
+        Args:
+            row (_type_): dataframe row
+
+        Returns:
+            bool: prop65 
+        """
         if pd.isna(row["url california label (jpg)"]) or pd.isna(row["url california label (pdf)"]):
             return False
         else:
@@ -92,6 +126,12 @@ class ETLPipeline:
         
         
     def transform(self):
+        """This helper function transform input dataframe to expected dataframe
+
+        Returns:
+            pd.Dataframe: transformed dataframe
+        """
+        
         # create new dataframe with all column names of reference dataframe
         flattened_dataframe = self.reference_dataframe[0:0].copy()
         for col_main, col_ref in self.get_column_name_mapping().items():
@@ -145,4 +185,4 @@ if __name__ == "__main__":
     etl_pipeline = ETLPipeline(
         main_dataframe=homework_dataframe, reference_dataframe=example_dataframe
     )
-    print(etl_pipeline())
+    print(f"ETL Pipeline successful: {etl_pipeline()}")
