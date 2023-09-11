@@ -1,6 +1,7 @@
 from typing import Callable
 
 import pandas as pd
+from tqdm import tqdm
 
 from transformers import (
     currency_transformer, dimension_transformer, country_transformer, boolean_transformer,
@@ -76,7 +77,7 @@ class ETL:
         # Create new file
         output_file = pd.DataFrame()
 
-        for current_col_name, new_col_name in cls.COL_HEADER_MAP.items():
+        for current_col_name, new_col_name in tqdm(cls.COL_HEADER_MAP.items()):
             # Get transformer for column
             transformer = cls.get_transformer_for_column(current_col_name)
 
