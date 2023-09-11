@@ -1,19 +1,36 @@
-# Task
+#### ETL assignment submission.
 
-1. Fork this project
-2. Create a python script that reads all of the rows from `homework.csv` and outputs them to a new file `formatted.csv` using the headers from `example.csv` as a guideline.  (See `Transformations` below for more details.)
-3. You may you any libraries you wish, but you must include a `requirements.txt` if you import anything outside of the standard library.
-4. There is no time limit for this assignment.
-5. You may ask any clarifying questions via email.
-6. Create a pull request against this repository with an English description of how your code works when you are complete
+This script mainly uses `pandas` library for parsing/altering data on input file. `ETL` class is defined as an entry point for the script. Class has `process_data` `classmethod` which will perform the transform operation. Input file is loaded by.
 
-## Transformations
+#### Example workflow :rocket:
+- `process_data` takes in argument `dataframe` which is a `pandas.DataFrame` object and `output_filename` for the result file.
+- A `dict` object is defined within `ETL` class which maps column names to new column names.
+- Method iterates through key, value pairs of column name mapping.
+- For each key, `get_transformer_for_column` method is called to get a helper `transformer` function which will alter the given data into expected format such as `date`, `bool`, `upc`...
+- Pandas `apply` method will perform transforms on each cell under given column and transformed data will be written into a new file.
+- Output file will be generated in the same directory.
 
-Follow industry standards for each data type when decided on the final format for cells.
+## Requirements
 
-* Dates should use ISO 8601
-* Currency should be rounded to unit of accounting. Assume USD for currency and round to cents.
-* For dimensions without units, assume inches. Convert anything which isn't in inches to inches.
-* For weights without units, assume pounds. Convert anything which isn't in pounds to pounds.
-* UPC / Gtin / EAN should be handled as strings
-* Floating point and decimal numbers should preserve as much precision as possible
+- pandas
+
+- tqdm (for progress bar)
+
+## Running script
+- (Optional) Create a virtual environment
+	```bash
+	python -m virtualenv .venv
+	# Activate
+	source .venv/bin/activate
+	# Or windows
+	.venv/Scripts/activate
+- Install dependencies
+	```bash
+	pip install -r requirements.txt
+	```
+- Run the script
+	 ```bash
+	 python main.py
+   ```
+   This will generate output csv file which is named as `formatted` by default
+		
