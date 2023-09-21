@@ -1,0 +1,104 @@
+{
+  "column_mapping": {
+      "item number": "manufacturer_sku",
+      "upc": "ean13",
+      "system creation date": "system__creation__date",
+      "item weight (pounds)": "weight",
+      "item depth (inches)": "length",
+      "item width (inches)": "width",
+      "item height (inches)": "height",
+      "msrp ($)": "cost_price",
+      "map ($)": "min_price",
+      "item category": "product__product_class__name",
+      "brand": "product__brand__name",
+      "description": "product__title",
+      "long description": "product__description",
+      "selling point 1": "product__bullets_0",
+      "selling point 2": "product__bullets_1",
+      "selling point 3": "product__bullets_2",
+      "selling point 4": "product__bullets_3",
+      "selling point 5": "product__bullets_4",
+      "selling point 6": "product__bullets_5",
+      "selling point 7": "product__bullets_6",
+      "carton count": "product__multipack_quantity",
+      "country of origin": "product__country_of_origin__alpha_3",
+      "furniture arm height (inches)": "attrib__arm_height",
+      "bulb 1 included": "attrib__bulb_included",
+      "bulb 1 type": "attrib__bulb_type",
+      "primary color family": "attrib__color",
+      "cord length (inches)": "attrib__cord_length",
+      "licensed by": "attrib__designer",
+      "item finish": "attrib__finish",
+      "conversion kit option": "attrib__kit",
+      "item materials": "attrib__material",
+      "bulb 1 count": "attrib__number_bulbs",
+      "outdoor": "attrib__outdoor_safe",
+      "max overall height (inches)": "attrib__pile_height",
+      "furniture seat height (inches)": "attrib__seat_height",
+      "switch type": "attrib__switch_type",
+      "safety rating": "attrib__ul_certified",
+      "bulb 1 wattage": "attrib__wattage",
+      "furniture weight capacity (pounds)": "attrib__weight_capacity",
+      "carton 1 weight (pounds)": "boxes__0__weight",
+      "carton 1 length (inches)": "boxes__0__length",
+      "carton 1 height (inches)": "boxes__0__height",
+      "carton 1 width (inches)": "boxes__0__width",
+      "carton 2 weight (pounds)": "boxes__1__weight",
+      "carton 2 length (inches)": "boxes__1__length",
+      "carton 2 height (inches)": "boxes__1__height",
+      "carton 2 width (inches)": "boxes__1__width",
+      "carton 3 weight (pounds)": "boxes__2__weight",
+      "carton 3 length (inches)": "boxes__2__length",
+      "carton 3 height (inches)": "boxes__2__height",
+      "carton 3 width (inches)": "boxes__2__width",
+      "item style": "product__styles"
+  },
+    "transformations": {
+        "dimension": {
+            "columns_to_transform": [
+                "item width (inches)", "item height (inches)", "item depth (inches)", "cord length (inches)",
+                "carton 1 length (inches)", "carton 1 height (inches)", "carton 1 width (inches)",
+                "carton 2 length (inches)", "carton 2 height (inches)", "carton 2 width (inches)",
+                "carton 3 length (inches)", "carton 3 height (inches)", "carton 3 width (inches)",
+                "max overall height (inches)", "furniture arm height (inches)", "furniture seat height (inches)"
+            ],
+            "units": {
+                "cm": 0.393701,
+                "m":39.3701,
+                "ft":12
+            },
+            "tranform_logic": "transform_dimension"
+        },
+        "weight": {
+            "columns_to_transform": [
+                "item weight (pounds)", 
+                "carton 1 weight (pounds)",
+                "carton 2 weight (pounds)", 
+                "carton 3 weight (pounds)",
+                "furniture weight capacity (pounds)"
+            ],
+            "units": {
+                "g": 0.00220462,
+                "kg": 2.20462,
+                "oz": 0.0625
+            },
+            "tranform_logic": "transform_weights"
+        },
+        "country": {
+            "columns_to_transform": ["country of origin"],
+            "units": {
+                "CHN": ["China"],
+                "IND": ["India"],
+                "IDN": ["Indonesia"],
+                "PH": ["Phillipines"],
+                "TH": ["Thailand"],
+                "VN": ["Vietnam"]
+            },
+            "tranform_logic": "transform_country_origin"
+        },
+        "currency": {
+            "columns_to_transform": ["map ($)", "msrp ($)"],
+            "tranform_logic": "transform_currency"
+        }
+    }
+}
