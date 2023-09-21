@@ -1,0 +1,76 @@
+{
+  "column_mapping": {
+      "item number": "manufacturer_sku",
+      "upc": "ean13", "item weight (pounds)": "weight",
+      "item width (inches)": "width",
+      "item height (inches)": "height",
+      "msrp ($)": "cost_price",
+      "map ($)": "min_price",
+      "item category": "product__product_class__name",
+      "brand": "product__brand__name",
+      "description": "product__title",
+      "long description": "product__description",
+      "carton count": "product__multipack_quantity",
+      "country of origin": "product__country_of_origin__alpha_3",
+      "furniture arm height (inches)": "attrib__arm_height",
+      "carton 1 weight (pounds)": "boxes__0__weight",
+      "carton 1 length (inches)": "boxes__0__length",
+      "carton 1 height (inches)": "boxes__0__height",
+      "carton 1 width (inches)": "boxes__0__width",
+      "carton 2 weight (pounds)": "boxes__1__weight",
+      "carton 2 length (inches)": "boxes__1__length",
+      "carton 2 height (inches)": "boxes__1__height",
+      "carton 2 width (inches)": "boxes__1__width",
+      "carton 3 weight (pounds)": "boxes__2__weight",
+      "carton 3 length (inches)": "boxes__2__length",
+      "carton 3 height (inches)": "boxes__2__height",
+      "carton 3 width (inches)": "boxes__2__width",
+      "item style": "product__styles"
+  },
+    "transformations": {
+        "dimension": {
+            "columns_to_transform": [
+                "item width (inches)", "item height (inches)",
+                "carton 1 length (inches)", "carton 1 height (inches)", "carton 1 width (inches)",
+                "carton 2 length (inches)", "carton 2 height (inches)", "carton 2 width (inches)",
+                "carton 3 length (inches)", "carton 3 height (inches)", "carton 3 width (inches)"
+            ],
+            "units": {
+                "cm": 0.393701,
+                "m":39.3701,
+                "ft":12
+            },
+            "tranform_logic": "transform_dimension"
+        },
+        "weight": {
+            "columns_to_transform": [
+                "item weight (pounds)", 
+                "carton 1 weight (pounds)",
+                "carton 2 weight (pounds)", 
+                "carton 3 weight (pounds)"
+            ],
+            "units": {
+                "g": 0.00220462,
+                "kg": 2.20462,
+                "oz": 0.0625
+            },
+            "tranform_logic": "transform_weights"
+        },
+        "country": {
+            "columns_to_transform": ["country of origin"],
+            "units": {
+                "CHN": ["China"],
+                "IND": ["India"],
+                "IDN": ["Indonesia"],
+                "PH": ["Phillipines"],
+                "TH": ["Thailand"],
+                "VN": ["Vietnam"]
+            },
+            "tranform_logic": "transform_country_origin"
+        },
+        "currency": {
+            "columns_to_transform": ["map ($)", "msrp ($)"],
+            "tranform_logic": "transform_currency"
+        }
+    }
+}
