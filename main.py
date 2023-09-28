@@ -18,6 +18,8 @@ def process_file(filename: str, processed_file: str) -> None:
 
         # converting ean to str and matching to the format in example.csv
         homework_df['ean13'] = homework_df['ean13'].apply(format_ean)
+
+        # converting country names to their alpha-3 codes
         homework_df['product__country_of_origin__alpha_3'] = homework_df[
             'product__country_of_origin__alpha_3'].map(country_mapping)
 
