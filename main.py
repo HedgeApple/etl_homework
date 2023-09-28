@@ -1,18 +1,18 @@
 import logging
 import pandas as pd
-from map_cols import (generate_column_mapping, format_ean,
-                      add_new_columns, column_order,
-                      country_mapping)
+from map_cols import (add_new_columns, column_order, country_mapping,
+                      format_ean, generate_column_mapping, map_prop65)
 
 
 def process_file(filename: str, processed_file: str) -> None:
     try:
         # reading the file
         homework_df = pd.read_csv(filename, low_memory=False)
-
         # column mapping
+        homework_df['prop_65'] = map_prop65(homework_df)
         column_mapping = generate_column_mapping(homework_df)
         homework_df.rename(columns=column_mapping, inplace=True)
+        column_mapping['prop_65'] = 'prop_65'
         homework_df = homework_df[column_mapping.values()]
         homework_df = add_new_columns(homework_df)
 

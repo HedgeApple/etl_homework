@@ -29,6 +29,11 @@ def map_carton_columns(df: pd.DataFrame,
                         column_name_without_unit] = f"boxes__{i}__{attribute}"
 
 
+def map_prop65(df: pd.DataFrame) -> pd.Series:
+    return df['url california label (jpg)'].notna() | df[
+        'url california label (pdf)'].notna()
+
+
 def generate_column_mapping(df: pd.DataFrame) -> dict[str, str]:
     column_mapping = {
         "item number": "manufacturer_sku",
@@ -88,7 +93,7 @@ def format_ean(ean: int) -> str:
 
 
 def add_new_columns(df: pd.DataFrame) -> pd.DataFrame:
-    new_columns = ["made_to_order", "product__configuration__codes",
+    new_columns = ["prop65", "made_to_order", "product__configuration__codes",
                    "product__parent_sku", "attrib__assembly_required",
                    "attrib__back_material", "attrib__blade_finish",
                    "attrib__design_id", "attrib__distressed_finish",
@@ -111,6 +116,7 @@ def column_order() -> list[str]:
         "length",
         "width",
         "height",
+        "prop_65",
         "cost_price",
         "min_price",
         "made_to_order",
