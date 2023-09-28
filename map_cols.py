@@ -1,6 +1,34 @@
 import pandas as pd
 
 
+def map_selling_point_columns(df: pd.DataFrame,
+                              column_mapping: dict[str, str]) -> None:
+    bullet_cols = [col for col in df.columns if 'selling point' in col]
+    n_bullets = len(bullet_cols)
+    for i in range(n_bullets):
+        column_mapping[f"selling point {i+1}"] = f"product__bullets__{i}"
+
+
+def map_carton_columns(df: pd.DataFrame,
+                       column_mapping: dict[str, str]) -> None:
+    carton_columns = [
+        column for column in df.columns if column.startswith('carton')]
+    carton_numbers = [
+        column.split(' ')[1] for column in carton_columns if ' ' in column]
+    n_boxes = len(set(carton_numbers))
+    for i in range(n_boxes):
+        for attribute in ["weight", "length", "height", "width"]:
+            unit = "(pounds)" if attribute == "weight" else "(inches)"
+            column_name = f"carton {i+1} {attribute} {unit}"
+            if column_name in df.columns:
+                column_mapping[column_name] = f"boxes__{i}__{attribute}"
+            else:
+                column_name_without_unit = f"carton {i+1} {attribute}"
+                if column_name_without_unit in df.columns:
+                    column_mapping[
+                        column_name_without_unit] = f"boxes__{i}__{attribute}"
+
+
 def generate_column_mapping(df: pd.DataFrame) -> dict[str, str]:
     column_mapping = {
         "item number": "manufacturer_sku",
@@ -36,32 +64,27 @@ def generate_column_mapping(df: pd.DataFrame) -> dict[str, str]:
         "furniture weight capacity (pounds)": "attrib__weight_capacity",
         "item style": "product__styles"
     }
-
-    bullet_cols = [col for col in df.columns if 'selling point' in col]
-    n_bullets = len(bullet_cols)
-    for i in range(n_bullets):
-        column_mapping[f"selling point {i+1}"] = f"product__bullets__{i}"
-
-    box_cols = [col for col in df.columns if 'carton' in col.split(' ')[0]]
-    n_boxes = len(set([col.split(' ')[1] for col in box_cols if len(col.split(' ')) > 1]))
-    for i in range(n_boxes):
-        for attribute in ["weight", "length", "height", "width"]:
-            column_name = f"carton {i+1} {attribute} (pounds)" if attribute == "weight" else f"carton {i+1} {attribute} (inches)"
-            if column_name in df.columns:
-                column_mapping[column_name] = f"boxes__{i}__{attribute}"
+    try:
+        map_selling_point_columns(df, column_mapping)
+        map_carton_columns(df, column_mapping)
+    except KeyError as key_error:
+        print(
+            f"Error: DataFrame does not contain expected column: {key_error}")
+    except ValueError as ve:
+        print(f"Error: column names cannot be converted to an integer.: {ve}")
 
     return column_mapping
 
 
-def format_ean13(ean: int) -> str:
+def format_ean(ean: int) -> str:
     try:
         if ean < 0:
             return ""
         ean_str = str(int(ean)).zfill(12)
     except ValueError:
         return ""
-    ean13 = f"0{ean_str[:2]}-{ean_str[2:11]}-{ean_str[11]}"
-    return ean13
+    ean_13 = f"0{ean_str[:2]}-{ean_str[2:11]}-{ean_str[11]}"
+    return ean_13
 
 
 def add_new_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -76,7 +99,7 @@ def add_new_columns(df: pd.DataFrame) -> pd.DataFrame:
                    "attrib__warranty_years", "attrib__weave"]
 
     for column in new_columns:
-        df[column] = None
+        df[column] = ""
     return df
 
 
