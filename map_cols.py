@@ -3,6 +3,14 @@ import pandas as pd
 
 def map_selling_point_columns(df: pd.DataFrame,
                               column_mapping: dict[str, str]) -> None:
+    """
+    Map the selling point columns in the DataFrame to product bullets.
+
+    Args:
+        df (pd.DataFrame): DataFrame to map
+        column_mapping (dict[str, str]): The dictionary to store the mapping
+        of old column names to new ones.
+    """
     bullet_cols = [col for col in df.columns if 'selling point' in col]
     n_bullets = len(bullet_cols)
     for i in range(n_bullets):
@@ -11,6 +19,14 @@ def map_selling_point_columns(df: pd.DataFrame,
 
 def map_carton_columns(df: pd.DataFrame,
                        column_mapping: dict[str, str]) -> None:
+    """
+    Map the carton columns in the DataFrame to box attributes.
+
+    Args:
+        df (pd.DataFrame): DataFrame to map
+        column_mapping (dict[str, str]): The dictionary to store the mapping
+        of old column names to new ones.
+    """
     carton_columns = [
         column for column in df.columns if column.startswith('carton')]
     carton_numbers = [
@@ -29,12 +45,17 @@ def map_carton_columns(df: pd.DataFrame,
                         column_name_without_unit] = f"boxes__{i}__{attribute}"
 
 
-def map_prop65(df: pd.DataFrame) -> pd.Series:
-    return df['url california label (jpg)'].notna() | df[
-        'url california label (pdf)'].notna()
-
-
 def generate_column_mapping(df: pd.DataFrame) -> dict[str, str]:
+    """
+    Generate a mapping of old column names to new ones.
+
+    Args:
+        df (pd.DataFrame): DataFrame
+
+    Returns:
+        dict[str, str]: The dictionary that maps old column names to new ones.
+
+    """
     column_mapping = {
         "item number": "manufacturer_sku",
         "upc": "ean13",
@@ -81,18 +102,16 @@ def generate_column_mapping(df: pd.DataFrame) -> dict[str, str]:
     return column_mapping
 
 
-def format_ean(ean: int) -> str:
-    try:
-        if ean < 0:
-            return ""
-        ean_str = str(int(ean)).zfill(12)
-    except ValueError:
-        return ""
-    ean_13 = f"0{ean_str[:2]}-{ean_str[2:11]}-{ean_str[11]}"
-    return ean_13
-
-
 def add_new_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add new columns to the DataFrame.
+
+    Args:
+        df (pd.DataFrame): DataFrame
+
+    Returns:
+        pd.DataFrame: The DataFrame with added new columns.
+    """
     new_columns = ["prop65", "made_to_order", "product__configuration__codes",
                    "product__parent_sku", "attrib__assembly_required",
                    "attrib__back_material", "attrib__blade_finish",
@@ -104,11 +123,17 @@ def add_new_columns(df: pd.DataFrame) -> pd.DataFrame:
                    "attrib__warranty_years", "attrib__weave"]
 
     for column in new_columns:
-        df[column] = ""
+        df.loc[:, column] = ""
     return df
 
 
 def column_order() -> list[str]:
+    """
+    Creates a new order of columns
+
+    Returns:
+        list[str]: list of columns
+    """
     columns = [
         "manufacturer_sku",
         "ean13",
@@ -183,13 +208,3 @@ def column_order() -> list[str]:
         "boxes__2__width",
         "product__styles"]
     return columns
-
-
-country_mapping = {
-    'China': 'CHN',
-    'India': 'IND',
-    'Indonesia': 'IDN',
-    'Phillipines': 'PH',
-    'Thailand': 'TH',
-    'Vietnam': 'VN'
-}
