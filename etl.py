@@ -1,3 +1,4 @@
+import re
 import json
 
 import structlog
@@ -65,6 +66,19 @@ columns_to_json = {
 }
 
 
+def csv_to_df():
+    """
+    Reading CSV file
+    :return: pandas dataframe for homework.csv
+    and example.csv
+    """
+    log.info('Reading csv files to create dataframes')
+    homework_df = pd.read_csv('homework.csv', low_memory=False)
+    example_df = pd.read_csv('example.csv')
+    log.info('Dataframes created')
+    return homework_df, example_df
+
+
 def convert_to_json(row, columns):
     """
     To group related columns and store them as JSON string.
@@ -82,28 +96,29 @@ def convert_to_json(row, columns):
     return json.dumps(json_data, indent=4)
 
 
-def csv_to_df():
-    """
-    Reading CSV file
-    :return: pandas dataframe for homework.csv
-    and example.csv
-    """
-    log.info('Reading csv files to create dataframes')
-    homework_df = pd.read_csv('homework.csv', low_memory=False)
-    homework_df.dropna(axis=1, how='all')
-    example_df = pd.read_csv('example.csv')
-    example_df.drop(index=example_df.index, inplace=True)
-    log.info('Dataframes created')
-    return homework_df, example_df
+def round_to_unit_of_accounting(num):
+    if pd.isna(num):
+        return num
+    if isinstance(num, str):
+        num = float(re.search(r'[-+]?\d*\.\d+|\d+', num).group())
+    num = round(num, 2)
+    return f"{num:.2f}"
 
 
 def transform_df(original_df, formatted_df):
     """
     To create dataframe for formatted.csv
     """
+    original_df.dropna(axis=1, how='all')
+    original_df['upc'] = (original_df['upc']
+                          .apply(lambda x: str(int(x)) if not pd.isna(x) and not isinstance(x, str) else x))
+    original_df['wholesale ($)'] = original_df['wholesale ($)'].apply(round_to_unit_of_accounting)
+    original_df['map ($)'] = original_df['map ($)'].apply(round_to_unit_of_accounting)
+    formatted_df.drop(index=formatted_df.index, inplace=True)
+
     new_rows = {}
     for index, row in original_df.iterrows():
-        log.info(f'Importing {index} of {len(original_df)} ')
+        log.info(f'Importing {index} of {len(original_df)}')
         for key, value in direct_mapping.items():
             if key in formatted_df.columns:
                 new_rows[key] = row[value]
