@@ -1,6 +1,7 @@
 import re
 import json
 
+import requests
 import structlog
 import pandas as pd
 
@@ -66,6 +67,29 @@ columns_to_json = {
 }
 
 
+def get_alpha3_code(country_name):
+    """
+    To get alpha3code from  OpenDataSoft API.
+    :param country_name:
+    :return: Alpha3code or country name in case alpha3code couldn't be retrieved.
+    """
+    url = (f"https://public.opendatasoft.com/"
+           f"api/explore/v2.1/catalog/datasets/countries-codes/records?"
+           f"select=iso3_code&where=label_en='{country_name}'&limit=1")
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        country = response.json()['results'][0]['iso3_code']
+        log.info(f'Retrieved alpha3code for {country_name} is {country}')
+        return country
+    except IndexError:
+        log.warning(f'Could not find Alpha3code for country {country_name}.')
+    except Exception as e:
+        log.error(f"Unable to get alpha3 code for {country_name} due to the following error: {e}")
+    log.warning(f"Returning country name, not it's Alpha3code.")
+    return country_name
+
+
 def csv_to_df():
     """
     Reading CSV file
@@ -115,6 +139,13 @@ def transform_df(original_df, formatted_df):
     original_df['wholesale ($)'] = original_df['wholesale ($)'].apply(round_to_unit_of_accounting)
     original_df['map ($)'] = original_df['map ($)'].apply(round_to_unit_of_accounting)
     formatted_df.drop(index=formatted_df.index, inplace=True)
+
+    countries = original_df['country of origin'].dropna().unique().tolist()
+    alpha3code = {}
+    for country in countries:
+        alpha3code[country] = get_alpha3_code(country)
+    original_df['country of origin'] = (original_df['country of origin']
+                                        .apply(lambda x: alpha3code[x] if not pd.isna(x) else x))
 
     new_rows = {}
     for index, row in original_df.iterrows():
