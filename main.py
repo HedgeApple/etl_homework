@@ -40,10 +40,6 @@ def normalize_value(row, column):
     """
     if not pd.isna(row[column]):
         return normalize_number(row[column])
-    else:
-        return row[column]
-
-
 
 
     
@@ -78,7 +74,6 @@ df['map ($)'] = df['map ($)'].astype(float).map('{:.2f}'.format)
 # MSRP column in to strings
 df['msrp ($)'] = df['msrp ($)'].astype(str)
 
-
 # normalize all of the numbers in the MSRP column    
 for index, row in df.iterrows():
     df.at[index, 'msrp ($)'] = normalize_number(row['msrp ($)'])
@@ -93,25 +88,28 @@ df['replacement glass price ($)'] = df.apply(normalize_value, axis=1, column='re
 cubic_feet_to_inches = 12 ** 3
 
 # Convert all rows to cubic inches for carton 1 column
-df['carton 1 volume (cubic feet)'] = df['carton 1 volume (cubic feet)'] * cubic_feet_to_inches
+df['carton 1 volume (cubic feet)'] = round(df['carton 1 volume (cubic feet)'] * cubic_feet_to_inches, 2)
+df['carton 1 volume (cubic feet)'] = round(df['carton 1 volume (cubic feet)'].astype(float), 2)
 
 # Rename column to reflect cubic inches
 df.rename(columns={'carton 1 volume (cubic feet)': 'carton_1_cubic_inches'}, inplace=True)
 
-# Convert all rows to cubic inches for carton 2 column
-df['carton2volumecubicfeet'] = np.where(df['carton2volumecubicfeet'].notna(), df['carton2volumecubicfeet'] * cubic_feet_to_inches, df['carton2volumecubicfeet'])
+# Convert all rows to cubic inches for carton 2 column and round to 2 decimal places
+df['carton2volumecubicfeet'] = np.where(df['carton2volumecubicfeet'].notna(), round(df['carton2volumecubicfeet'].astype(float) * cubic_feet_to_inches, 2), df['carton2volumecubicfeet'])
 
+                                     
 # Rename column to reflect cubic inches
 df.rename(columns={'carton2volumecubicfeet': 'carton_2_cubic_inches'}, inplace=True)
 
 # Rename column to reflect cubic inches
-df['carton 3 volume (cubic feet)'] = np.where(df['carton 3 volume (cubic feet)'].notna(), df['carton 3 volume (cubic feet)'] * cubic_feet_to_inches, df['carton 3 volume (cubic feet)'])
+df['carton 3 volume (cubic feet)'] = np.where(df['carton 3 volume (cubic feet)'].notna(), round(df['carton 3 volume (cubic feet)'].astype(float) * cubic_feet_to_inches, 2), df['carton 3 volume (cubic feet)'])
 
+                                     
 # Convert all rows to cubic inches for carton 3 column
 df.rename(columns={'carton 3 volume (cubic feet)': 'carton_3_cubic_inches'}, inplace=True)
 
-# UPC column changed into string
-df.upc = df.upc.astype(str)
+# UPC column changed into string and strip the .0 at the end
+df.upc = df.upc.astype(str).str.rstrip('.0')
 
 # Create csv of the formatted data
 df.to_csv('formatted.csv', index=False)
