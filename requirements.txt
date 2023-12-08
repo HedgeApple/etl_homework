@@ -1,0 +1,15 @@
+# Overview 
+
+To run this file, type the following in the terminal: 
+
+python3 solution.py
+
+This program takes in the homework.csv file and performs data manipulation. It sends the output to solution.csv. If you want to change the input file, you need to do that within the code. 
+
+# Dependencies 
+
+To run this program, you need the following
+
+1. numpy library 
+2. pandas library 
+
